@@ -79,7 +79,7 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
-      return this.rows()[rowIndex].reduce((acc, val) => acc + val, 0) > 1;
+      return this.get(rowIndex).reduce((acc, val) => acc + val, 0) > 1;
     },
 
     // test if any rows on this board contain conflicts
@@ -109,11 +109,34 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      // input: index in range 0 - (n-1) .. n-1
+      // initialize counter
+      var total = 0;
+      // initialize mdci
+      var mdci = majorDiagonalColumnIndexAtFirstRow;
+      // iterate starting at row 0 up to row 3
+      for (let row = 0; row < this.get('n'); row++) {
+        // if row i, column mdci is in bounds:
+        if (this._isInBounds(row, mdci)) {
+          // add to counter the value at row i, column mdci
+          total += this.get(row)[mdci];
+          console.log(this.get(row)[mdci]);
+        }
+        // mdci ++        
+        mdci++;
+      }
+      // return boolean: true counter > 1, else false
+      return total > 1;
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
+      // iterate over column indices from -(n-1) to (n-1)
+      for (let colIdx = (-1 * (this.get('n') - 1)); colIdx < this.get('n'); colIdx++) {
+        // check diagonal conflict at that col
+        // if conflict, return true
+        if (this.hasMajorDiagonalConflictAt(colIdx)) { return true; }
+      }
       return false; // fixme
     },
 
