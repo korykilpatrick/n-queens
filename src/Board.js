@@ -79,12 +79,24 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
-      return this.get(rowIndex).reduce((acc, val) => acc + val, 0) > 1;
+      let row = this.get(rowIndex);
+      let count = 0;
+      for (let idx = 0; idx < row.length; idx++) {
+        if (row[idx] > 0) { count++; }
+        if (count > 1) { return true; }
+      }
+      // // .reduce is less efficient than for-loop
+      // return this.get(rowIndex).reduce((acc, val) => acc + val, 0) > 1;
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
-      return this.rows().reduce((acc, row, idx) => this.hasRowConflictAt(idx) || acc, false);
+      for (let row = 0; row < this.get('n'); row++) {
+        if (this.hasRowConflictAt(row)) { return true; }
+      }
+      return false;
+      // // .reduce is less efficient than for-loop
+      // return this.rows().reduce((acc, row, idx) => this.hasRowConflictAt(idx) || acc, false);
     },
 
 
@@ -94,12 +106,24 @@
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
-      return this.rows().reduce((acc, row, idx) => row[colIndex] + acc, 0) > 1;
+      let rows = this.rows();
+      let count = 0;
+      for (let idx = 0; idx < this.get('n'); idx++) {
+        if (rows[idx][colIndex] > 0) { count++; }
+        if (count > 1) { return true; }
+      }
+      // // .reduce is less efficient than for-loop
+      //return this.rows().reduce((acc, row, idx) => row[colIndex] + acc, 0) > 1;
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
-      return _.range(this.get('n')).reduce((acc, colIndex) => this.hasColConflictAt(colIndex) || acc, false);
+      for (let col = 0; col < this.get('n'); col++) {
+        if (this.hasColConflictAt(col)) { return true; }
+      }
+      return false;
+      // // .reduce is less efficient than for-loop
+      // return _.range(this.get('n')).reduce((acc, colIndex) => this.hasColConflictAt(colIndex) || acc, false);
     },
 
 
@@ -109,23 +133,22 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) {
-      // input: index in range 0 - (n-1) .. n-1
-      // initialize counter
-      var total = 0;
-      // initialize mdci
       var mdci = majorDiagonalColumnIndexAtFirstRow;
-      // iterate starting at row 0 up to row 3
-      for (let row = 0; row < this.get('n'); row++) {
-        // if row i, column mdci is in bounds:
-        if (this._isInBounds(row, mdci)) {
-          // add to counter the value at row i, column mdci
-          total += this.get(row)[mdci];
-        }
-        // mdci ++        
-        mdci++;
+      var pieceCount = 0;
+      // find first square: 
+      var currCol = mdci < 0 ? 0 : mdci;
+      var currRow = mdci < 0 ? Math.abs(mdci) : 0;
+      // while row and col are in range:
+      while (this._isInBounds(currRow, currCol)) {
+        // if piece at sq, add 1 to pieceCount
+        pieceCount += this.get(currRow)[currCol];
+        // check if we already have a conflict
+        if (pieceCount > 1) { return true; }
+        // add 1 to row, add 1 to col
+        currRow++;
+        currCol++;
       }
-      // return boolean: true counter > 1, else false
-      return total > 1;
+      return false;
     },
 
     // test if any major diagonals on this board contain conflicts
@@ -136,7 +159,7 @@
         // if conflict, return true
         if (this.hasMajorDiagonalConflictAt(colIdx)) { return true; }
       }
-      return false; // fixme
+      return false;
     },
 
 
@@ -146,23 +169,22 @@
     //
     // test if a specific minor diagonal on this board contains a conflict
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow) {
-      // initialize counter
-      var total = 0;
-      // initialize mdci
-      var mdci = minorDiagonalColumnIndexAtFirstRow; 
-      // iterate over row indexes
-      for (let rowIdx = 0; rowIdx < this.get('n'); rowIdx++) {
-        // if row index at mdci is in bounds
-          // increment counter
-        if (this._isInBounds(rowIdx, mdci)) {
-          total += this.rows()[rowIdx][mdci];
-        }
-        mdci--;
+      var mdci = minorDiagonalColumnIndexAtFirstRow;
+      var pieceCount = 0;
+      // find first square: 
+      var currCol = mdci < this.get('n') ? mdci : this.get('n') - 1;
+      var currRow = mdci < this.get('n') ? 0 : (mdci - (this.get('n')) + 1);
+      // while row and col are in range:
+      while (this._isInBounds(currRow, currCol)) {
+        // if piece at sq, add 1 to pieceCount
+        pieceCount += this.get(currRow)[currCol];
+        // check if we already have a conflict
+        if (pieceCount > 1) { return true; }
+        // add 1 to row, add 1 to col
+        currRow++;
+        currCol--;
       }
-      return total > 1;
-        
-        
-        
+      return false;             
     },
 
     // test if any minor diagonals on this board contain conflicts
