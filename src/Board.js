@@ -120,7 +120,6 @@
         if (this._isInBounds(row, mdci)) {
           // add to counter the value at row i, column mdci
           total += this.get(row)[mdci];
-          console.log(this.get(row)[mdci]);
         }
         // mdci ++        
         mdci++;
@@ -147,12 +146,28 @@
     //
     // test if a specific minor diagonal on this board contains a conflict
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      // initialize counter
+      var total = 0;
+      // initialize mdci
+      var mdci = minorDiagonalColumnIndexAtFirstRow; 
+      // iterate over row indexes
+      for (let rowIdx = 0; rowIdx < this.get('n'); rowIdx++) {
+        // if row index at mdci is in bounds
+          // increment counter
+        if (this._isInBounds(rowIdx, mdci)) {
+          total += this.rows()[rowIdx][mdci];
+        }
+        mdci--;
+      }
+      return total > 1;
+        
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
-      return false; // fixme
+      return _.range(1, this.get('n') + (this.get('n') - 2)).reduce((acc, idx) => {
+        return acc || this.hasMinorDiagonalConflictAt(idx);
+      }, false);
     }
 
     /*--------------------  End of Helper Functions  ---------------------*/
