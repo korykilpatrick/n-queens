@@ -161,6 +161,8 @@
       }
       return total > 1;
         
+        
+        
     },
 
     // test if any minor diagonals on this board contain conflicts
@@ -175,7 +177,7 @@
 
   });
 
-  var makeEmptyMatrix = function(n) {
+  window.makeEmptyMatrix = function(n) {
     return _(_.range(n)).map(function() {
       return _(_.range(n)).map(function() {
         return 0;

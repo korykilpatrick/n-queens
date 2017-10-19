@@ -16,8 +16,47 @@
 
 
 window.findNRooksSolution = function(n) {
-  var solution = undefined; //fixme
-
+  var board = new Board(makeEmptyMatrix(n));
+  
+  
+  // for each of rows r 0 to n:
+    // for each row greater than r
+      // 
+  
+  
+  
+  
+  for (var row = 0; row < n; row++) {
+    for (var col = 0; col < n; col++) {
+      board.togglePiece(row, col)
+    }    
+  }
+  
+  
+  // create inner recursive function
+  var solve = function(piecesPlaced, rowsOK) {
+    // iterate through columns
+    for (let col = 0; col < n; col++) {
+      // set piece in first available square
+      board.togglePiece(rowsOK[0], col);
+      // increment rook counter
+      piecesPlaced++;
+      // check if we have a solution
+      if (piecesPlaced === n) {
+        if (!board.hasAnyRooksConflicts()) { return board.rows(); }
+      } else if (!rowsOK.length) {
+        // base case: no options left and no solution
+        return [];
+      } else {
+        return solve(piecesPlaced, rowsOK.slice(1));  
+      }
+      // if we haven't found a solution, recurse
+      board.togglePiece(rowsOK[0], col);
+    }
+  };
+  var solution = solve(0, _.range(0, n));
+  
+  
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution;
 };
