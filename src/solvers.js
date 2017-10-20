@@ -44,7 +44,7 @@ window.findNRooksSolution = function(n) {
         if (piecesPlaced === n) {
           // add it to our solution list
           // solutions.push(JSON.parse(JSON.stringify(board.rows())));
-          solutions.push(copy(board));   
+          solutions.push(copy(board));
         } else {
           // we're not done trying to turn this board into a solution
           // recurse if there are more rows below
@@ -179,7 +179,7 @@ window.findNQueensSolution = function(n) {
       // increment pieces placed
       piecesPlaced++;
       // check if we have a valid board
-      if (!board.hasAnyQueensConflicts()) {
+      if (!board.hasAnyQueenConflictsOn(row, col)) {
         // if we've placed n pieces we have a solution 
         if (piecesPlaced === n) {
           // add it to our solution list
@@ -223,19 +223,30 @@ window.countNQueensSolutions = function(n) {
   
   var board = new Board(makeEmptyMatrix(n));
   
+  // store list of the columns available
+  var colsOK = {};
+  _(_.range(0, n)).forEach(num => colsOK[num] = num);  
+  
   var solutions = 0;  
-  var colsOk = {}
   // create inner recursive function
-  var solve = function(piecesPlaced, row, colObj) {
+  var solve = function(piecesPlaced, row, colsObj) {
     var piecesPlaced = piecesPlaced; 
     // iterate through columns
-    for (let col = 0; col < n; col++) {
+    //for (let col = 0; col < n; col++) {
+      
+    _.each(colsObj, col => {   
       // set piece in the square
       board.togglePiece(row, col);
       // increment pieces placed
       piecesPlaced++;
+      
+      delete colsObj[col];
+      
       // check if we have a valid board
-      if (!board.hasAnyQueensConflicts()) {
+      if (!board.hasAnyQueenConflictsOn(row, col)) {
+        
+      // if (!board.hasAnyMajorDiagonalConflicts() && !board.hasAnyMinorDiagonalConflicts()) {
+
         // if we've placed n pieces we have a solution 
         if (piecesPlaced === n) {
           // add it to our solution list
@@ -245,7 +256,7 @@ window.countNQueensSolutions = function(n) {
           // we're not done trying to turn this board into a solution
           // recurse if there are more rows below
           if (row < n - 1) {
-            solve(piecesPlaced, row + 1);          
+            solve(piecesPlaced, row + 1, colsOK);          
           }
         }
       }
@@ -253,13 +264,16 @@ window.countNQueensSolutions = function(n) {
       board.togglePiece(row, col);
       // decrement pieces placed
       piecesPlaced--;
-    }
+      
+      colsObj[col] = col;
+      
+    });
     if (row < n - 1) {
-      solve(piecesPlaced, row + 1);
+      solve(piecesPlaced, row + 1, colsOK);
     }
   };
   // start at row 0 with 0 pieces placed
-  solve(0, 0);
+  solve(0, 0, colsOK);
   
 
   if (n < 1) {
