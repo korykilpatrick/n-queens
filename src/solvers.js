@@ -72,52 +72,91 @@ window.findNRooksSolution = function(n) {
 };
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
-window.countNRooksSolutions = function(n) {
-  
-  var board = new Board(makeEmptyMatrix(n));
-  
-  var solutions = [];  
+// window.countNRooksSolutions = function(n) {
+//   var board = new Board(makeEmptyMatrix(n));
+//   var solutions = 0;  
+//   // create inner recursive function
+//   var solve = function(piecesPlaced, row) {
+//     var piecesPlaced = piecesPlaced; 
+//     // iterate through columns
+//     for (let col = 0; col < n; col++) {
+//       // set piece in the square
+//       board.togglePiece(row, col);
+//       // increment pieces placed
+//       piecesPlaced++;
+//       // check if we have a valid board
+//       if (!board.hasAnyRooksConflicts()) {
+//         // if we've placed n pieces we have a solution 
+//         if (piecesPlaced === n) {
+//           // add it to our solution list
+//           // solutions.push(JSON.parse(JSON.stringify(board.rows())));
+//           solutions++;   
+//         } else {
+//           // we haven't placed enough pieces, so recurse if there are more rows below
+//           if (row < n - 1) {
+//             solve(piecesPlaced, row + 1);          
+//           }
+//         }
+//       }
+//       // remove piece so we can look for more solutions 
+//       board.togglePiece(row, col);
+//       // decrement pieces placed
+//       piecesPlaced--;
+//     }
+//     if (row < n - 1) {
+//       solve(piecesPlaced, row + 1);
+//     }
+//   };
+//   // start at row 0 with 0 pieces placed
+//   solve(0, 0); 
+//   console.log('Number of solutions for ' + n + ' rooks:', solutions);
+//   return solutions;
+// };
 
+window.countNRooksSolutions = function(n) {
+  var board = new Board(makeEmptyMatrix(n));
+  var solutions = 0;
+  // store list of the columns available
+  var colsOK = {};
+  _(_.range(0, n)).forEach(num => colsOK[num] = num);  
   // create inner recursive function
-  var solve = function(piecesPlaced, row) {
+  var solve = function(piecesPlaced, row, colsObj) {
     var piecesPlaced = piecesPlaced; 
     // iterate through columns
-    for (let col = 0; col < n; col++) {
+    // for (let col = 0; col < n; col++) {
+    _.each(colsOK, col => {  
       // set piece in the square
       board.togglePiece(row, col);
       // increment pieces placed
       piecesPlaced++;
-      // check if we have a valid board
-      if (!board.hasAnyRooksConflicts()) {
-        // if we've placed n pieces we have a solution 
-        if (piecesPlaced === n) {
-          // add it to our solution list
-          // solutions.push(JSON.parse(JSON.stringify(board.rows())));
-          solutions.push(copy(board));   
- 
-        } else {
-          // we're not done trying to turn this board into a solution
-          // recurse if there are more rows below
-          if (row < n - 1) {
-            solve(piecesPlaced, row + 1);          
-          }
+      // remove the column from list of OK cols
+      delete colsObj[col];
+      // if we've placed n pieces we have a solution 
+      if (piecesPlaced === n) {
+        // add it to our solution list
+        // solutions.push(JSON.parse(JSON.stringify(board.rows())));
+        solutions++;   
+      } else {
+        // we haven't placed enough pieces, so recurse if there are more rows below
+        if (row < n - 1) {
+          solve(piecesPlaced, row + 1, colsOK);          
         }
       }
       // remove piece so we can look for more solutions 
       board.togglePiece(row, col);
       // decrement pieces placed
       piecesPlaced--;
-    }
+      // replace column we removed earlier
+      colsObj[col] = col;
+    }); // end _.each loop
     if (row < n - 1) {
-      solve(piecesPlaced, row + 1);
+      solve(piecesPlaced, row + 1, colsOK);
     }
   };
   // start at row 0 with 0 pieces placed
-  solve(0, 0);
- 
-
-  console.log('Number of solutions for ' + n + ' rooks:', solutions.length);
-  return solutions.length;
+  solve(0, 0, colsOK); 
+  console.log('Number of solutions for ' + n + ' rooks:', solutions);
+  return solutions;
 };
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
@@ -184,10 +223,10 @@ window.countNQueensSolutions = function(n) {
   
   var board = new Board(makeEmptyMatrix(n));
   
-  var solutions = [];  
-
+  var solutions = 0;  
+  var colsOk = {}
   // create inner recursive function
-  var solve = function(piecesPlaced, row) {
+  var solve = function(piecesPlaced, row, colObj) {
     var piecesPlaced = piecesPlaced; 
     // iterate through columns
     for (let col = 0; col < n; col++) {
@@ -201,8 +240,7 @@ window.countNQueensSolutions = function(n) {
         if (piecesPlaced === n) {
           // add it to our solution list
           // solutions.push(JSON.parse(JSON.stringify(board.rows())));
-          solutions.push(copy(board));   
- 
+          solutions++;   
         } else {
           // we're not done trying to turn this board into a solution
           // recurse if there are more rows below
@@ -223,13 +261,11 @@ window.countNQueensSolutions = function(n) {
   // start at row 0 with 0 pieces placed
   solve(0, 0);
   
-  var solutionCount;
+
   if (n < 1) {
     return 1;
-  } else {
-    solutionCount = solutions.length;
   }
   
-  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
-  return solutionCount;
+  console.log('Number of solutions for ' + n + ' queens:', solutions);
+  return solutions;
 };

@@ -52,6 +52,7 @@
 
     hasAnyQueensConflicts: function() {
       return this.hasAnyRooksConflicts() || this.hasAnyMajorDiagonalConflicts() || this.hasAnyMinorDiagonalConflicts();
+      // return this.hasAnyMajorDiagonalConflicts() || this.hasAnyMinorDiagonalConflicts();
     },
 
     _isInBounds: function(rowIndex, colIndex) {
@@ -109,7 +110,7 @@
       let rows = this.rows();
       let count = 0;
       for (let idx = 0; idx < this.get('n'); idx++) {
-        if (rows[idx][colIndex] > 0) { count++; }
+        if (rows[idx][colIndex]) { count++; }
         if (count > 1) { return true; }
       }
       // // .reduce is less efficient than for-loop
@@ -155,8 +156,7 @@
     hasAnyMajorDiagonalConflicts: function() {
       // iterate over column indices from -(n-1) to (n-1)
       for (let colIdx = (-1 * (this.get('n') - 1)); colIdx < this.get('n'); colIdx++) {
-        // check diagonal conflict at that col
-        // if conflict, return true
+        // check diagonal conflict at that col; if conflict, return true
         if (this.hasMajorDiagonalConflictAt(colIdx)) { return true; }
       }
       return false;
@@ -189,9 +189,16 @@
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
-      return _.range(1, this.get('n') + (this.get('n') - 2)).reduce((acc, idx) => {
-        return acc || this.hasMinorDiagonalConflictAt(idx);
-      }, false);
+      for (var idx = 1; idx < this.get('n') + (this.get('n') - 2); idx++) {
+        if (this.hasMinorDiagonalConflictAt(idx)) {
+          return true;
+        }
+      }    
+      return false;
+      
+      // return _.range(1, this.get('n') + (this.get('n') - 2)).reduce((acc, idx) => {
+      //   return acc || this.hasMinorDiagonalConflictAt(idx);
+      // }, false);
     }
 
     /*--------------------  End of Helper Functions  ---------------------*/
