@@ -226,40 +226,31 @@ window.countNQueensSolutions = function(n) {
   _(_.range(0, n)).forEach(num => colsOK[num] = num);  
   var solutions = 0;  
   // create inner recursive function
-  var solve = function(piecesPlaced, row, colsObj) {
-    var piecesPlaced = piecesPlaced; 
+  var solve = function(row, colsObj) {
     // iterate through columns
-    //for (let col = 0; col < n; col++) {
     _.each(colsObj, col => {   
       // set piece in the square
-      board.togglePiece(row, col);
-      // increment pieces placed
-      piecesPlaced++;     
+      board.get(row)[col] = 1;
+      // remove this col from list of available cols
       delete colsObj[col];      
       // check if we have a valid board
       if (!board.hasAnyQueenConflictsOn(row, col)) {        
         // if we've placed n pieces we have a solution 
-        if (piecesPlaced === n) {
-          // add it to our solution list
-          // solutions.push(JSON.parse(JSON.stringify(board.rows())));
+        if (row === n - 1) {
+          // add it to our solution count
           solutions++;   
         } else {
-          // we're not done trying to turn this board into a solution
-          // recurse if there are more rows below
-          if (row < n - 1) {
-            solve(piecesPlaced, row + 1, colsOK);          
-          }
+          // recurse if there are more rows below (not done with board)
+          if (row < n - 1) { solve(row + 1, colsOK); }
         }
       }
       // remove piece so we can look for more solutions 
-      board.togglePiece(row, col);
-      // decrement pieces placed
-      piecesPlaced--;   
+      board.get(row)[col] = 0; 
       colsObj[col] = col;
     });
   };
   // start at row 0 with 0 pieces placed
-  solve(0, 0, colsOK);
+  solve(0, colsOK);
   if (n < 1) {
     return 1;
   }
